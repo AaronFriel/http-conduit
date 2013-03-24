@@ -145,12 +145,21 @@ getResponse connRelease timeout'' req@(Request {..}) src1 = do
 
     -- should we put this connection back into the connection manager?
     let toPut = Just "close" /= lookup "connection" hs' && vbs /= "1.0"
-    let cleanup bodyConsumed = connRelease $ if toPut && bodyConsumed then Reuse else DontReuse
-
+    let cleanup bodyConsumed = connRelease $ if False then Reuse else DontReuse
+    
+    liftIO $ do
+      print "Begin debugging http-conduit"
+      print $ "Has body? " <> (show $ hasNoBody method sc)
+      print $ "mcl?      " <> (show mcl)
+      print $ "chunked?  " <> (show $ ("transfer-encoding", "chunked") `elem` hs')
+      print $ "gunzip?   " <> (show $ needsGunzip req hs') 
+      return ()  
+    
     -- RFC 2616 section 4.4_1 defines responses that must not include a body
     body <-
         if hasNoBody method sc || mcl == Just 0
             then do
+                liftIO $ print "hasNoBody?"
                 cleanup True
                 (rsrc, ()) <- return () $$+ return ()
                 return rsrc

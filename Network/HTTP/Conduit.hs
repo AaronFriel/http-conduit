@@ -195,6 +195,7 @@ import qualified Network.TLS as TLS
 import Control.Monad ((<=<))
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Trans.Resource
+import Data.Monoid ((<>))
 
 import qualified Data.Conduit as C
 import Data.Conduit.Blaze (builderToByteString)
@@ -304,6 +305,12 @@ httpRaw req' m = do
 
         getResponse connRelease timeout' req src
 
+    liftIO $ do
+      print "Debugging httpRaw"
+      case ex of
+        Left e -> print $ "Exception! " <> show e
+        _      -> return ()
+      
     case (ex, isManaged) of
         -- Connection was reused, and might have been closed. Try again
         (Left e, Reused) | isRetryableException e -> do

@@ -185,6 +185,13 @@ instance Default (Request m) where
                 Just timeout' -> do
                     before <- liftIO getCurrentTime
                     mres <- timeout timeout' f
+                    liftIO $ do
+                      print "Begin debugging wrapper"
+                      now <- getCurrentTime
+                      let  timeSpentMicro = diffUTCTime now before * 1000000
+                      print $ "Current time: " <> show now
+                      print $ "Difference:   " <> show timeSpentMicro
+                      print $ "Remaining:    " <> show (round $ fromIntegral timeout' - timeSpentMicro)
                     case mres of
                         Nothing -> throwIO exc
                         Just res -> do
