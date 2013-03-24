@@ -145,7 +145,7 @@ getResponse connRelease timeout'' req@(Request {..}) src1 = do
 
     -- should we put this connection back into the connection manager?
     let toPut = Just "close" /= lookup "connection" hs' && vbs /= "1.0"
-    let cleanup bodyConsumed = connRelease $ if False then Reuse else DontReuse
+    let cleanup bodyConsumed = connRelease $ if toPut && bodyConsumed then Reuse else DontReuse
     
     liftIO $ do
       print "Begin debugging http-conduit"
